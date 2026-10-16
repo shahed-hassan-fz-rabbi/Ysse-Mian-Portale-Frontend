@@ -1,15 +1,36 @@
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { departments } from '../data/departments'
-import DepartmentCard from '../components/shared/DepartmentCard'
-import SectionHeading from '../components/ui/SectionHeading'
-import CTASection from '../components/shared/CTASection'
+﻿import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import { ArrowRight } from "lucide-react"
+import { useDocumentTitle } from "../hooks/useDocumentTitle"
+import { api, ApiError } from "../lib/api"
+import { Department } from "../types"
+import CTASection from "../components/shared/CTASection"
 
 export default function DepartmentsPage() {
-  useDocumentTitle('Departments')
+  useDocumentTitle("Departments")
+
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchDepartments()
+  }, [])
+
+  async function fetchDepartments() {
+    setLoading(true)
+    try {
+      const data = await api.get<Department[]>("/api/content/departments")
+      setDepartments(data || [])
+      setError("")
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to load departments")
+    }
+    setLoading(false)
+  }
 
   return (
     <div>
-      {/* Hero */}
       <section className="bg-warm">
         <div className="container-site py-16 md:py-20">
           <div className="max-w-3xl">
@@ -17,62 +38,51 @@ export default function DepartmentsPage() {
               Our Departments
             </h1>
             <p className="mt-4 text-lg text-muted leading-relaxed">
-              Y SSE operates through specialized departments, each contributing
-              to our mission of empowering young social entrepreneurs. Learn
-              about their goals, activities, and how they work together.
+              YSSE operates through specialized departments, each contributing
+              to our mission of empowering young social entrepreneurs.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Department Listing */}
       <section className="bg-white">
         <div className="container-site section-padding">
-          <SectionHeading
-            title="Department Structure"
-            subtitle="Each department focuses on a distinct aspect of our work, from training and research to community engagement and operations."
-            className="mb-10"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {departments.map((dept) => (
-              <DepartmentCard key={dept.id} department={dept} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Organizational Overview */}
-      <section className="bg-warm">
-        <div className="container-site section-padding">
-          <SectionHeading
-            title="How We Work Together"
-            subtitle="Our departments collaborate to provide a comprehensive ecosystem of support for young social entrepreneurs. Training programs are informed by research insights, amplified through community engagement, and supported by efficient operations."
-            className="mb-10"
-          />
-          <div className="bg-white rounded-xl p-8 border border-border">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {departments.map((dept, index) => (
-                <div key={dept.id} className="text-center">
-                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 text-primary font-bold text-lg mb-3">
-                    {index + 1}
-                  </div>
-                  <h3 className="font-semibold text-charcoal text-sm mb-1">
-                    {dept.shortName}
+          {loading ? (
+            <div className="text-center py-8 text-muted">Loading departments...</div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-600">{error}</div>
+          ) : departments.length === 0 ? (
+            <div className="text-center py-8 text-muted">No departments published yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {departments.map((dept) => (
+                <Link
+                  key={dept.id}
+                  to={`/departments/${dept.id}`}
+                  className="group block bg-white rounded-xl border border-border shadow-card p-6 hover:shadow-card-hover transition-shadow duration-200"
+                >
+                  <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
+                    {dept.name}
                   </h3>
-                  <p className="text-xs text-muted">{dept.name}</p>
-                </div>
+                  <p className="text-sm text-muted leading-relaxed line-clamp-3">
+                    {dept.description}
+                  </p>
+                  <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
+                    Learn more
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* CTA */}
       <CTASection
         title="Interested in Working With Us?"
-        subtitle="We offer virtual internship opportunities across our departments. Gain hands-on experience while contributing to our mission."
-        primaryAction={{ label: 'View Opportunities', to: '/internships' }}
-        secondaryAction={{ label: 'Contact Us', to: '/contact' }}
+        description="We offer virtual internship opportunities across our departments."
+        primaryAction={{ label: "View Opportunities", to: "/internships" }}
+        secondaryAction={{ label: "Contact Us", to: "/contact" }}
       />
     </div>
   )

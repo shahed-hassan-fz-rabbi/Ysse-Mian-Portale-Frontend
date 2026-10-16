@@ -1,10 +1,10 @@
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { Target, Eye, Compass, Heart } from 'lucide-react'
-import SectionHeading from '../components/ui/SectionHeading'
-import CTASection from '../components/shared/CTASection'
+﻿import { useDocumentTitle } from "../hooks/useDocumentTitle"
+import { Target, Eye, Compass, Heart } from "lucide-react"
+import SectionHeading from "../components/ui/SectionHeading"
+import CTASection from "../components/shared/CTASection"
 
 export default function AboutPage() {
-  useDocumentTitle('About YSSE')
+  useDocumentTitle("About YSSE")
 
   return (
     <div>
@@ -101,21 +101,21 @@ export default function AboutPage() {
             {[
               {
                 icon: Compass,
-                title: 'Entrepreneurship Education',
+                title: "Entrepreneurship Education",
                 description:
-                  'Provide comprehensive entrepreneurship education that equips young people with business planning, financial literacy, and management skills.',
+                  "Provide comprehensive entrepreneurship education that equips young people with business planning, financial literacy, and management skills.",
               },
               {
                 icon: Heart,
-                title: 'Social Impact Focus',
+                title: "Social Impact Focus",
                 description:
-                  'Foster a deep understanding of social challenges and train participants to develop ventures that create measurable, sustainable impact.',
+                  "Foster a deep understanding of social challenges and train participants to develop ventures that create measurable, sustainable impact.",
               },
               {
                 icon: Target,
-                title: 'Capacity Building',
+                title: "Capacity Building",
                 description:
-                  'Build the practical capacities of young entrepreneurs through training, mentorship, and hands-on learning experiences.',
+                  "Build the practical capacities of young entrepreneurs through training, mentorship, and hands-on learning experiences.",
               },
             ].map((item) => (
               <div
@@ -154,12 +154,12 @@ export default function AboutPage() {
               />
               <ul className="mt-6 space-y-4">
                 {[
-                  'Entrepreneurship training and bootcamps',
-                  'Business model design and validation',
-                  'Impact measurement and evaluation',
-                  'Leadership and team development',
-                  'Financial management for social ventures',
-                  'Research and knowledge production',
+                  "Entrepreneurship training and bootcamps",
+                  "Business model design and validation",
+                  "Impact measurement and evaluation",
+                  "Leadership and team development",
+                  "Financial management for social ventures",
+                  "Research and knowledge production",
                 ].map((area) => (
                   <li key={area} className="flex items-start gap-3">
                     <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -176,10 +176,10 @@ export default function AboutPage() {
 
       {/* CTA */}
       <CTASection
-        title="Join the Y SSE Community"
-        subtitle="Explore our programs, learn about our departments, or discover internship opportunities to get involved."
-        primaryAction={{ label: 'Explore Courses', to: '/courses' }}
-        secondaryAction={{ label: 'View Departments', to: '/departments' }}
+        title="Join the YSSE Community"
+        description="Explore our programs, learn about our departments, or discover internship opportunities to get involved."
+        primaryAction={{ label: "Explore Courses", to: "/courses" }}
+        secondaryAction={{ label: "View Departments", to: "/departments" }}
       />
     </div>
   )

@@ -1,127 +1,88 @@
-import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, Clock, CheckCircle, AlertCircle } from 'lucide-react'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { internships } from '../data/internships'
-import Badge from '../components/ui/Badge'
-import Button from '../components/ui/Button'
-import CTASection from '../components/shared/CTASection'
+﻿import { useState, useEffect } from "react"
+import { useParams, Link, Navigate } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
+import { useDocumentTitle } from "../hooks/useDocumentTitle"
+import { api } from "../lib/api"
+import { InternshipOpportunity } from "../types"
+import Badge from "../components/ui/Badge"
+import Button from "../components/ui/Button"
+import CTASection from "../components/shared/CTASection"
 
 export default function InternshipDetailPage() {
   const { id } = useParams<{ id: string }>()
-  useDocumentTitle('Internship Details')
+  useDocumentTitle("Internship Details")
 
-  const internship = internships.find((i) => i.id === id)
+  const [internship, setInternship] = useState<InternshipOpportunity | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  if (!internship) {
+  useEffect(() => {
+    fetchInternship()
+  }, [id])
+
+  async function fetchInternship() {
+    setLoading(true)
+    try {
+      const data = await api.get<InternshipOpportunity>(`/api/content/internships/${id}`)
+      setInternship(data)
+      setError("")
+    } catch {
+      setError("Internship not found")
+    }
+    setLoading(false)
+  }
+
+  if (loading) {
+    return <div className="container-site py-16 text-center text-muted">Loading...</div>
+  }
+
+  if (error || !internship) {
     return <Navigate to="/internships" replace />
   }
 
   return (
     <div>
-      {/* Hero */}
       <section className="bg-warm">
         <div className="container-site py-12 md:py-16">
-          <Link
-            to="/internships"
-            className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors mb-6"
-          >
+          <Link to="/internships" className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors mb-6">
             <ArrowLeft className="h-4 w-4" />
             Back to Opportunities
           </Link>
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <Badge variant="mint">{internship.department}</Badge>
-            {internship.isDemo && (
-              <Badge variant="outline">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Demo Data
-              </Badge>
-            )}
+            <Badge variant="mint">{internship.status}</Badge>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-charcoal tracking-tight">
-            {internship.title}
-          </h1>
-          <p className="mt-4 text-lg text-muted leading-relaxed max-w-3xl">
-            {internship.description}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-muted">
-            <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              {internship.location}
-            </span>
-            <span className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              {internship.duration}
-            </span>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-charcoal tracking-tight">{internship.title}</h1>
+          <p className="mt-4 text-lg text-muted leading-relaxed max-w-3xl">{internship.description}</p>
         </div>
       </section>
 
-      {/* Content */}
       <section className="bg-white">
         <div className="container-site section-padding">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
             <div className="lg:col-span-2">
-              {/* Responsibilities */}
-              <div className="mb-10">
-                <h2 className="text-xl font-bold text-charcoal mb-4">
-                  Responsibilities
-                </h2>
-                <ul className="space-y-3">
-                  {internship.responsibilities.map((resp) => (
-                    <li key={resp} className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm text-charcoal">{resp}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Requirements */}
-              <div>
-                <h2 className="text-xl font-bold text-charcoal mb-4">
-                  Eligibility Requirements
-                </h2>
-                <ul className="space-y-3">
-                  {internship.requirements.map((req) => (
-                    <li key={req} className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm text-charcoal">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <h2 className="text-xl font-bold text-charcoal mb-4">Requirements</h2>
+              <p className="text-muted leading-relaxed">{internship.requirements}</p>
             </div>
 
-            {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-mint rounded-xl p-6 sticky top-24">
                 <h3 className="font-semibold text-charcoal mb-4">Position Details</h3>
                 <dl className="space-y-3 text-sm">
                   <div>
-                    <dt className="text-muted">Department</dt>
-                    <dd className="font-medium text-charcoal">{internship.department}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted">Location</dt>
-                    <dd className="font-medium text-charcoal">{internship.location}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted">Duration</dt>
-                    <dd className="font-medium text-charcoal">{internship.duration}</dd>
+                    <dt className="text-muted">Status</dt>
+                    <dd className="font-medium text-charcoal">{internship.status}</dd>
                   </div>
                   <div>
                     <dt className="text-muted">Application Deadline</dt>
-                    <dd className="font-medium text-charcoal">{internship.deadline}</dd>
+                    <dd className="font-medium text-charcoal">
+                      {internship.application_deadline ? new Date(internship.application_deadline).toLocaleDateString() : "No deadline"}
+                    </dd>
                   </div>
                 </dl>
                 <div className="mt-6 pt-6 border-t border-border">
                   <Link to="/apply">
                     <Button className="w-full">Apply Now</Button>
                   </Link>
-                  <p className="text-xs text-muted mt-3 text-center">
-                    Note: This is a demo application. No real data will be submitted.
-                  </p>
                 </div>
               </div>
             </div>
@@ -129,12 +90,11 @@ export default function InternshipDetailPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <CTASection
         title="Interested in Other Opportunities?"
-        subtitle="Explore our courses to build relevant skills, or check out other departments to find the right fit for you."
-        primaryAction={{ label: 'View Courses', to: '/courses' }}
-        secondaryAction={{ label: 'All Departments', to: '/departments' }}
+        description="Explore our courses to build relevant skills, or check out other departments."
+        primaryAction={{ label: "View Courses", to: "/courses" }}
+        secondaryAction={{ label: "All Departments", to: "/departments" }}
       />
     </div>
   )

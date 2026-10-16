@@ -1,15 +1,37 @@
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { internships } from '../data/internships'
-import InternshipCard from '../components/shared/InternshipCard'
-import SectionHeading from '../components/ui/SectionHeading'
-import CTASection from '../components/shared/CTASection'
+﻿import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import { ArrowRight } from "lucide-react"
+import { useDocumentTitle } from "../hooks/useDocumentTitle"
+import { api, ApiError } from "../lib/api"
+import { InternshipOpportunity } from "../types"
+import Badge from "../components/ui/Badge"
+import CTASection from "../components/shared/CTASection"
 
 export default function InternshipsPage() {
-  useDocumentTitle('Internship Opportunities')
+  useDocumentTitle("Internship Opportunities")
+
+  const [internships, setInternships] = useState<InternshipOpportunity[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchInternships()
+  }, [])
+
+  async function fetchInternships() {
+    setLoading(true)
+    try {
+      const data = await api.get<InternshipOpportunity[]>("/api/content/internships")
+      setInternships(data || [])
+      setError("")
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to load internships")
+    }
+    setLoading(false)
+  }
 
   return (
     <div>
-      {/* Hero */}
       <section className="bg-warm">
         <div className="container-site py-16 md:py-20">
           <div className="max-w-3xl">
@@ -18,82 +40,51 @@ export default function InternshipsPage() {
             </h1>
             <p className="mt-4 text-lg text-muted leading-relaxed">
               Gain practical experience in the social entrepreneurship sector
-              through our virtual internship program. We offer flexible
-              opportunities across multiple departments for students and
-              recent graduates.
+              through our virtual internship program.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Opportunities */}
       <section className="bg-white">
         <div className="container-site section-padding">
-          <SectionHeading
-            title="Available Positions"
-            subtitle="Browse our current virtual internship openings. Each position offers a unique opportunity to contribute to our mission while developing your professional skills."
-            className="mb-10"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {internships.map((internship) => (
-              <InternshipCard key={internship.id} internship={internship} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-8 text-muted">Loading internships...</div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-600">{error}</div>
+          ) : internships.length === 0 ? (
+            <div className="text-center py-8 text-muted">No internship opportunities published yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {internships.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/internships/${item.id}`}
+                  className="group block bg-white rounded-xl border border-border shadow-card p-6 hover:shadow-card-hover transition-shadow duration-200"
+                >
+                  <Badge variant="mint" className="mb-3">{item.status}</Badge>
+                  <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted leading-relaxed line-clamp-2">
+                    {item.description}
+                  </p>
+                  <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
+                    View details
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* How to Apply */}
-      <section className="bg-warm">
-        <div className="container-site section-padding">
-          <SectionHeading
-            title="How to Apply"
-            subtitle="Our application process is straightforward. Follow these steps to submit your application."
-            className="mb-10"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                step: '1',
-                title: 'Choose a Position',
-                description:
-                  'Browse available positions and select the one that best matches your skills and interests.',
-              },
-              {
-                step: '2',
-                title: 'Submit Application',
-                description:
-                  'Complete the application form with your details, skills, and motivation statement.',
-              },
-              {
-                step: '3',
-                title: 'Track Progress',
-                description:
-                  'Use our application status tracker to follow your application through the review process.',
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="bg-white rounded-xl p-6 border border-border"
-              >
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <span className="font-bold text-primary">{item.step}</span>
-                </div>
-                <h3 className="font-semibold text-charcoal mb-2">{item.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
       <CTASection
         title="Ready to Apply?"
-        subtitle="Complete your application and take the first step toward gaining meaningful experience in social entrepreneurship."
-        primaryAction={{ label: 'Apply Now', to: '/apply' }}
-        secondaryAction={{ label: 'Contact Us', to: '/contact' }}
+        description="Complete your application and take the first step toward gaining meaningful experience."
+        primaryAction={{ label: "Apply Now", to: "/apply" }}
+        secondaryAction={{ label: "Contact Us", to: "/contact" }}
       />
     </div>
   )

@@ -1,20 +1,22 @@
+﻿export interface UserProfile {
+  id: string
+  full_name: string
+  phone: string | null
+  role: "user" | "admin"
+  created_at: string
+  updated_at: string
+}
+
 export interface Department {
   id: string
   name: string
-  shortName: string
+  slug: string
   description: string
   goals: string[]
   responsibilities: string[]
-  activities: string[]
-  image: string
-  headOfDepartment: string
-  teamMembers: TeamMember[]
-}
-
-export interface TeamMember {
-  name: string
-  role: string
-  image?: string
+  is_published: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Course {
@@ -22,82 +24,52 @@ export interface Course {
   title: string
   description: string
   category: string
-  duration: string
-  level: 'Beginner' | 'Intermediate' | 'Advanced'
-  format: 'Recorded' | 'Live' | 'Self-paced'
-  department: string
-  image: string
-  resources: CourseResource[]
-  topics: string[]
-}
-
-export interface CourseResource {
-  id: string
-  title: string
-  type: 'video' | 'document' | 'link'
-  url: string
-  description: string
-}
-
-export interface Internship {
-  id: string
-  title: string
-  department: string
-  description: string
-  responsibilities: string[]
-  requirements: string[]
-  duration: string
-  location: string
-  deadline: string
-  isDemo: boolean
-  image: string
+  recording_url: string | null
+  resource_url: string | null
+  is_published: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Announcement {
   id: string
   title: string
-  date: string
-  excerpt: string
-  category: string
+  body: string
+  published_at: string | null
+  is_published: boolean
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface InternshipOpportunity {
+  id: string
+  title: string
+  department_id: string | null
+  description: string
+  requirements: string
+  application_deadline: string | null
+  status: "draft" | "published" | "closed"
+  created_at: string
+  updated_at: string
+}
+
+export interface InternshipApplication {
+  id: string
+  user_id: string
+  opportunity_id: string
+  cover_letter: string | null
+  resume_url: string | null
+  status: "submitted" | "under_review" | "shortlisted" | "interview" | "selected" | "rejected"
+  created_at: string
+  updated_at: string
 }
 
 export interface ApplicationFormData {
-  fullName: string
-  email: string
-  phone: string
-  university: string
-  fieldOfStudy: string
-  preferredRole: string
+  opportunity_id: string
+  cover_letter: string
   skills: string
-  motivation: string
-  resume: File | null
 }
-
-export interface ApplicationStatus {
-  id: string
-  applicantName: string
-  role: string
-  department: string
-  submittedDate: string
-  currentStage: ApplicationStage
-  stages: ApplicationStageDetail[]
-}
-
-export interface ApplicationStageDetail {
-  stage: ApplicationStage
-  status: 'completed' | 'current' | 'pending'
-  date?: string
-  notes?: string
-}
-
-export type ApplicationStage =
-  | 'Submitted'
-  | 'Under Review'
-  | 'Shortlisted'
-  | 'Interview'
-  | 'Selected'
-  | 'Rejected'
-  | 'Onboarding'
 
 export interface ContactFormData {
   name: string
@@ -109,4 +81,26 @@ export interface ContactFormData {
 export interface NavItem {
   label: string
   path: string
+}
+
+/** Row shape of the `site_settings` table (single row, served by the API). */
+export interface SiteSettings {
+  id?: number
+  hero_heading: string | null
+  hero_description: string | null
+  hero_image_url: string | null
+  featured_heading: string | null
+  featured_description: string | null
+  featured_image_url: string | null
+  about_heading: string | null
+  about_description: string | null
+  about_image_url: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  contact_address: string | null
+  facebook_url: string | null
+  twitter_url: string | null
+  linkedin_url: string | null
+  instagram_url: string | null
+  footer_text: string | null
 }
