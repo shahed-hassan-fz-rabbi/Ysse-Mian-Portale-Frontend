@@ -15,6 +15,7 @@ export interface Department {
   goals: string[]
   responsibilities: string[]
   is_published: boolean
+  department_head: string | null
   created_at: string
   updated_at: string
 }
@@ -27,8 +28,36 @@ export interface Course {
   recording_url: string | null
   resource_url: string | null
   is_published: boolean
+  thumbnail_url: string | null
   created_at: string
   updated_at: string
+}
+
+/** Row shape of `team_members` (public endpoint joins the department name). */
+export interface TeamMember {
+  id: string
+  department_id: string | null
+  name: string
+  designation: string
+  bio: string | null
+  photo_url: string | null
+  display_order: number
+  is_published: boolean
+  created_at: string
+  updated_at: string
+  departments: { name: string } | null
+}
+
+/** Row shape of `contact_messages` (admin Messages page). */
+export interface ContactMessage {
+  id: string
+  name: string
+  email: string
+  subject: string
+  message: string
+  status: "new" | "read" | "archived"
+  ip_address: string | null
+  created_at: string
 }
 
 export interface Announcement {
@@ -63,6 +92,7 @@ export interface InternshipApplication {
   status: "submitted" | "under_review" | "shortlisted" | "interview" | "selected" | "rejected"
   created_at: string
   updated_at: string
+  internship_opportunities?: { title: string } | null
 }
 
 export interface ApplicationFormData {

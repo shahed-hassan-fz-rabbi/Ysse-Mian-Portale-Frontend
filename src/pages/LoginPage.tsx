@@ -10,7 +10,7 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = (location.state as any)?.from || "/"
+  const from = (location.state as { from?: string } | null)?.from || "/"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -44,8 +44,8 @@ export default function LoginPage() {
           navigate(from)
         }
       }
-    } catch (err: any) {
-      setError(err.message || "Login failed. Please check your credentials.")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message || "Login failed. Please check your credentials." : "Login failed. Please check your credentials.")
     } finally {
       setLoading(false)
     }

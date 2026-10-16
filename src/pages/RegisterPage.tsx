@@ -40,8 +40,8 @@ export default function RegisterPage() {
     try {
       await register(email, password, fullName, phone || undefined)
       navigate("/login")
-    } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message || "Registration failed. Please try again." : "Registration failed. Please try again.")
     } finally {
       setLoading(false)
     }

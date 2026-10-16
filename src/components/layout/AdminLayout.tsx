@@ -1,6 +1,6 @@
 ﻿import { useState } from "react"
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, Settings, Users, BookOpen, Megaphone, Briefcase, FileText, LogOut, Menu, X, ChevronRight, Building2, UsersRound, GraduationCap } from "lucide-react"
+import { LayoutDashboard, Settings, Users, BookOpen, Megaphone, Briefcase, FileText, LogOut, Menu, X, ChevronRight, Building2, UsersRound, GraduationCap, Mail } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 
 const navGroups: { label: string; items: { path: string; label: string; icon: typeof Users }[] }[] = [
@@ -30,7 +30,10 @@ const navGroups: { label: string; items: { path: string; label: string; icon: ty
   },
   {
     label: "System",
-    items: [{ path: "/admin/audit-logs", label: "Audit Logs", icon: BookOpen }],
+    items: [
+      { path: "/admin/messages", label: "Messages", icon: Mail },
+      { path: "/admin/audit-logs", label: "Audit Logs", icon: BookOpen },
+    ],
   },
 ]
 
@@ -45,6 +48,7 @@ const breadcrumbMap: Record<string, string> = {
   "/admin/users": "Users",
   "/admin/applications": "Applications",
   "/admin/audit-logs": "Audit Logs",
+  "/admin/messages": "Messages",
 }
 
 function NavLinks({ currentPath, onNavigate }: { currentPath: string; onNavigate?: () => void }) {
@@ -98,11 +102,14 @@ export default function AdminLayout() {
       {/* Sidebar - Desktop */}
       <aside className="w-64 bg-white border-r border-border flex flex-col fixed inset-y-0 left-0 z-40 hidden lg:flex">
         <div className="p-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-deep">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white text-sm font-bold">Y</span>
-            </div>
-            <span>Y SSE</span>
+          <Link to="/" aria-label="YSSE home" className="inline-flex">
+            <img
+              src="/images/ysse-logo.png"
+              alt="YSSE"
+              width={200}
+              height={200}
+              className="h-9 w-auto"
+            />
           </Link>
           <p className="text-xs text-muted mt-1">Admin Panel</p>
         </div>

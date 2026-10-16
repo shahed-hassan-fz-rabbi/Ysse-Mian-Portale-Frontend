@@ -10,6 +10,7 @@ const navItems: NavItem[] = [
   { label: "Departments", path: "/departments" },
   { label: "Courses", path: "/courses" },
   { label: "Internship", path: "/internships" },
+  { label: "Team", path: "/team" },
   { label: "Contact", path: "/contact" },
 ]
 
@@ -87,8 +88,9 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Nav (lg+ — below that the burger menu is used so the
+              wrapping header never overflows at tablet widths) */}
+          <div className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
               <NavLink key={item.path} to={item.path} className={({ isActive }) => navLinkClass(isActive)}>
                 {item.label}
@@ -97,7 +99,7 @@ export default function Navbar() {
           </div>
 
           {/* Auth area */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             {user ? (
               <>
                 <div className="relative" ref={menuRef}>
@@ -181,9 +183,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button (shown below lg) */}
           <button
-            className="md:hidden p-2 rounded-lg text-charcoal hover:bg-mint transition-colors"
+            className="lg:hidden p-2 rounded-lg text-charcoal hover:bg-mint transition-colors"
             onClick={() => setIsOpen((open) => !open)}
             aria-expanded={isOpen}
             aria-label="Toggle navigation menu"
@@ -194,7 +196,7 @@ export default function Navbar() {
 
         {/* Mobile Nav */}
         {isOpen && (
-          <div className="md:hidden pb-4 border-t border-border pt-4 animate-fade-down origin-top">
+          <div className="lg:hidden pb-4 border-t border-border pt-4 animate-fade-down origin-top">
             <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <NavLink

@@ -7,6 +7,15 @@ import { supabase } from "./supabase"
  */
 const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "")
 
+// In a production build a missing API URL would silently point every
+// request at localhost (i.e. the visitor's own machine). Fail loudly.
+if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+  console.error(
+    "[API] VITE_API_URL is not set in this production build. " +
+      "Requests would go to localhost — set the variable in your deployment settings.",
+  )
+}
+
 export class ApiError extends Error {
   status: number
   details?: unknown

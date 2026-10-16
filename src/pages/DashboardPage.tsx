@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { api, ApiError } from "../lib/api"
+import { formatDate } from "../utils/format"
 import Button from "../components/ui/Button"
 import Alert from "../components/ui/Alert"
 import Input from "../components/ui/Input"
@@ -11,6 +12,7 @@ interface Application {
   opportunity_id: string
   status: string
   created_at: string
+  internship_opportunities?: { title: string } | null
 }
 
 export default function DashboardPage() {
@@ -152,21 +154,32 @@ export default function DashboardPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-2 font-medium text-muted">Opportunity ID</th>
+                    <th className="text-left py-2 font-medium text-muted">Opportunity</th>
                     <th className="text-left py-2 font-medium text-muted">Status</th>
-                    <th className="text-left py-2 font-medium text-muted">Date</th>
+                    <th className="text-left py-2 font-medium text-muted">Applied On</th>
                   </tr>
                 </thead>
                 <tbody>
                   {applications.map((app) => (
                     <tr key={app.id} className="border-b border-border last:border-0">
-                      <td className="py-3 font-mono text-xs">{app.opportunity_id.slice(0, 8)}...</td>
+                      <td className="py-3 font-medium text-charcoal">
+                        {app.internship_opportunities?.title ? (
+                          <Link
+                            to={`/internships/${app.opportunity_id}`}
+                            className="hover:text-primary hover:underline underline-offset-2"
+                          >
+                            {app.internship_opportunities.title}
+                          </Link>
+                        ) : (
+                          <span className="text-muted">Removed opportunity</span>
+                        )}
+                      </td>
                       <td className="py-3">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[app.status] || "bg-gray-100 text-gray-800"}`}>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[app.status] || "bg-gray-100 text-gray-800"}`}>
                           {app.status.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="py-3 text-muted">{new Date(app.created_at).toLocaleDateString()}</td>
+                      <td className="py-3 text-muted">{formatDate(app.created_at)}</td>
                     </tr>
                   ))}
                 </tbody>

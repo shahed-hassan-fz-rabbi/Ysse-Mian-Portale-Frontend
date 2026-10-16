@@ -55,6 +55,18 @@ export default function CourseDetailPage() {
         </div>
       </section>
 
+      {course.thumbnail_url?.trim() && (
+        <section className="bg-white border-b border-border">
+          <div className="container-site py-8">
+            <img
+              src={course.thumbnail_url.trim()}
+              alt={`Cover image for ${course.title}`}
+              className="w-full max-w-4xl aspect-video object-cover rounded-xl border border-border shadow-card mx-auto"
+            />
+          </div>
+        </section>
+      )}
+
       <section className="bg-white">
         <div className="container-site section-padding">
           <div className="max-w-3xl">

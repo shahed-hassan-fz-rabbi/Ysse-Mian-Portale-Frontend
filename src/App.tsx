@@ -13,6 +13,7 @@ import InternshipsPage from "./pages/InternshipsPage"
 import InternshipDetailPage from "./pages/InternshipDetailPage"
 import ApplyPage from "./pages/ApplyPage"
 import ContactPage from "./pages/ContactPage"
+import TeamPage from "./pages/TeamPage"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import ForgotPasswordPage from "./pages/ForgotPasswordPage"
@@ -28,6 +29,7 @@ import AdminInternships from "./pages/admin/AdminInternships"
 import AdminUsers from "./pages/admin/AdminUsers"
 import AdminApplications from "./pages/admin/AdminApplications"
 import AdminAuditLogs from "./pages/admin/AdminAuditLogs"
+import AdminMessages from "./pages/admin/AdminMessages"
 import NotFoundPage from "./pages/NotFoundPage"
 
 export default function App() {
@@ -46,6 +48,7 @@ export default function App() {
           <Route path="/internships/:id" element={<InternshipDetailPage />} />
           <Route path="/apply" element={<ApplyPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/team" element={<TeamPage />} />
 
           {/* Auth routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -69,6 +72,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="applications" element={<AdminApplications />} />
           <Route path="audit-logs" element={<AdminAuditLogs />} />
+          <Route path="messages" element={<AdminMessages />} />
         </Route>
 
         {/* 404 */}

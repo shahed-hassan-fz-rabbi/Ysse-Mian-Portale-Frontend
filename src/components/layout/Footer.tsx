@@ -1,19 +1,14 @@
 import { Link } from "react-router-dom"
-import { Mail, MapPin, Phone, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { Mail, MapPin, Phone } from "lucide-react"
 import { useSiteSettings } from "../../hooks/useSiteSettings"
-
-const DEFAULT_SOCIAL: { label: string; url: string; Icon: typeof Facebook }[] = [
-  { label: "Facebook", url: "https://www.facebook.com/ysseglobal", Icon: Facebook },
-  { label: "Twitter", url: "https://twitter.com/ysseglobal", Icon: Twitter },
-  { label: "LinkedIn", url: "https://www.linkedin.com/company/ysseglobal", Icon: Linkedin },
-  { label: "Instagram", url: "https://www.instagram.com/ysseglobal", Icon: Instagram },
-]
+import { getSocialLinks } from "../../constants/social"
 
 const quickLinks: { label: string; to: string }[] = [
   { label: "About Us", to: "/about" },
   { label: "Departments", to: "/departments" },
   { label: "Courses", to: "/courses" },
   { label: "Internships", to: "/internships" },
+  { label: "Our Team", to: "/team" },
   { label: "Apply Now", to: "/apply" },
   { label: "Contact", to: "/contact" },
 ]
@@ -26,17 +21,7 @@ export default function Footer() {
   // defaults instead of breaking the page (the homepage surfaces errors).
   const { settings } = useSiteSettings()
 
-  const socialLinks = DEFAULT_SOCIAL.map(({ label, url, Icon }) => {
-    const fromSettings =
-      label === "Facebook"
-        ? settings?.facebook_url
-        : label === "Twitter"
-          ? settings?.twitter_url
-          : label === "LinkedIn"
-            ? settings?.linkedin_url
-            : settings?.instagram_url
-    return { label, url: (fromSettings || "").trim() || url, Icon }
-  }).filter((link) => Boolean(link.url))
+  const socialLinks = getSocialLinks(settings)
 
   const hasContact = Boolean(
     settings?.contact_email || settings?.contact_phone || settings?.contact_address,

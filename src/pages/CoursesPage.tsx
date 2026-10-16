@@ -1,10 +1,12 @@
 ﻿import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { Search } from "lucide-react"
+import { Search, GraduationCap } from "lucide-react"
 import { useDocumentTitle } from "../hooks/useDocumentTitle"
 import { api, ApiError } from "../lib/api"
 import { Course } from "../types"
 import Badge from "../components/ui/Badge"
+import PageHeader from "../components/shared/PageHeader"
+import { SkeletonGrid } from "../components/ui/Skeleton"
 import CTASection from "../components/shared/CTASection"
 
 export default function CoursesPage() {
@@ -51,19 +53,11 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <section className="bg-warm">
-        <div className="container-site py-16 md:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-charcoal tracking-tight">
-              Courses and Learning Resources
-            </h1>
-            <p className="mt-4 text-lg text-muted leading-relaxed">
-              Explore our range of courses designed to equip you with the skills
-              and knowledge needed for social entrepreneurship.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Learn with us"
+        title="Courses and Learning Resources"
+        description="Explore our range of courses designed to equip you with the skills and knowledge needed for social entrepreneurship."
+      />
 
       <section className="bg-white border-b border-border">
         <div className="container-site py-6">
@@ -96,26 +90,55 @@ export default function CoursesPage() {
       <section className="bg-white">
         <div className="container-site section-padding">
           {loading ? (
-            <div className="text-center py-8 text-muted">Loading courses...</div>
+            <SkeletonGrid
+              count={6}
+              lines={3}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            />
           ) : error ? (
-            <div className="text-center py-8 text-red-600">{error}</div>
+            <div className="text-center py-8 text-red-600" role="alert">
+              {error}
+            </div>
           ) : courses.length === 0 ? (
-            <div className="text-center py-8 text-muted">No courses found.</div>
+            <div className="text-center py-12 border border-dashed border-border rounded-xl bg-warm">
+              <p className="text-muted max-w-md mx-auto">
+                {allCourses.length === 0
+                  ? "No courses have been published yet. New learning resources are added regularly — check back soon."
+                  : "No courses match your search. Try a different keyword or category."}
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
                 <Link
                   key={course.id}
                   to={`/courses/${course.id}`}
-                  className="group block bg-white rounded-xl border border-border shadow-card p-6 hover:shadow-card-hover transition-shadow duration-200"
+                  className="group block bg-white rounded-xl border border-border shadow-card hover:shadow-card-hover transition-shadow duration-200 overflow-hidden"
                 >
-                  <Badge variant="mint" className="mb-3">{course.category}</Badge>
-                  <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
-                    {course.title}
-                  </h3>
-                  <p className="text-sm text-muted leading-relaxed line-clamp-2">
-                    {course.description}
-                  </p>
+                  {course.thumbnail_url?.trim() ? (
+                    <img
+                      src={course.thumbnail_url.trim()}
+                      alt={`Cover image for ${course.title}`}
+                      loading="lazy"
+                      className="w-full aspect-video object-cover border-b border-border"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="w-full aspect-video bg-mint flex items-center justify-center border-b border-border"
+                    >
+                      <GraduationCap className="h-10 w-10 text-primary/40" />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <Badge variant="mint" className="mb-3">{course.category}</Badge>
+                    <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-muted leading-relaxed line-clamp-2">
+                      {course.description}
+                    </p>
+                  </div>
                 </Link>
               ))}
             </div>

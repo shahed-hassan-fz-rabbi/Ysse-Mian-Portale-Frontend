@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react"
 import { useDocumentTitle } from "../hooks/useDocumentTitle"
 import { api } from "../lib/api"
 import { InternshipOpportunity } from "../types"
+import { isDeadlinePassed, formatDate } from "../utils/format"
 import Badge from "../components/ui/Badge"
 import Button from "../components/ui/Button"
 import CTASection from "../components/shared/CTASection"
@@ -40,6 +41,9 @@ export default function InternshipDetailPage() {
     return <Navigate to="/internships" replace />
   }
 
+  const closed =
+    internship.status === "closed" || isDeadlinePassed(internship.application_deadline)
+
   return (
     <div>
       <section className="bg-warm">
@@ -49,7 +53,11 @@ export default function InternshipDetailPage() {
             Back to Opportunities
           </Link>
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <Badge variant="mint">{internship.status}</Badge>
+            {closed ? (
+              <Badge variant="outline">Applications Closed</Badge>
+            ) : (
+              <Badge variant="mint">Open for Applications</Badge>
+            )}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-charcoal tracking-tight">{internship.title}</h1>
           <p className="mt-4 text-lg text-muted leading-relaxed max-w-3xl">{internship.description}</p>
@@ -61,28 +69,41 @@ export default function InternshipDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
               <h2 className="text-xl font-bold text-charcoal mb-4">Requirements</h2>
-              <p className="text-muted leading-relaxed">{internship.requirements}</p>
+              <p className="text-muted leading-relaxed whitespace-pre-line">{internship.requirements}</p>
             </div>
 
             <div className="lg:col-span-1">
-              <div className="bg-mint rounded-xl p-6 sticky top-24">
+              <div className="bg-mint rounded-xl p-6 md:sticky top-24">
                 <h3 className="font-semibold text-charcoal mb-4">Position Details</h3>
                 <dl className="space-y-3 text-sm">
                   <div>
                     <dt className="text-muted">Status</dt>
-                    <dd className="font-medium text-charcoal">{internship.status}</dd>
+                    <dd className="font-medium text-charcoal">
+                      {closed ? "Applications closed" : "Accepting applications"}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted">Application Deadline</dt>
                     <dd className="font-medium text-charcoal">
-                      {internship.application_deadline ? new Date(internship.application_deadline).toLocaleDateString() : "No deadline"}
+                      {formatDate(internship.application_deadline) || "No deadline"}
                     </dd>
                   </div>
                 </dl>
                 <div className="mt-6 pt-6 border-t border-border">
-                  <Link to="/apply">
-                    <Button className="w-full">Apply Now</Button>
-                  </Link>
+                  {closed ? (
+                    <>
+                      <Button className="w-full" disabled>
+                        Applications Closed
+                      </Button>
+                      <p className="mt-3 text-xs text-muted text-center">
+                        The application deadline has passed for this position.
+                      </p>
+                    </>
+                  ) : (
+                    <Link to={`/apply?opportunity=${internship.id}`}>
+                      <Button className="w-full">Apply Now</Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

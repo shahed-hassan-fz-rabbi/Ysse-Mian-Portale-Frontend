@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react"
 import { useDocumentTitle } from "../hooks/useDocumentTitle"
 import { api, ApiError } from "../lib/api"
 import { Department } from "../types"
+import PageHeader from "../components/shared/PageHeader"
+import { SkeletonGrid } from "../components/ui/Skeleton"
 import CTASection from "../components/shared/CTASection"
 
 export default function DepartmentsPage() {
@@ -31,28 +33,31 @@ export default function DepartmentsPage() {
 
   return (
     <div>
-      <section className="bg-warm">
-        <div className="container-site py-16 md:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-charcoal tracking-tight">
-              Our Departments
-            </h1>
-            <p className="mt-4 text-lg text-muted leading-relaxed">
-              YSSE operates through specialized departments, each contributing
-              to our mission of empowering young social entrepreneurs.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="What we do"
+        title="Our Departments"
+        description="YSSE operates through specialized departments, each contributing to our mission of empowering young social entrepreneurs."
+      />
 
       <section className="bg-white">
         <div className="container-site section-padding">
           {loading ? (
-            <div className="text-center py-8 text-muted">Loading departments...</div>
+            <SkeletonGrid
+              count={4}
+              lines={2}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            />
           ) : error ? (
-            <div className="text-center py-8 text-red-600">{error}</div>
+            <div className="text-center py-8 text-red-600" role="alert">
+              {error}
+            </div>
           ) : departments.length === 0 ? (
-            <div className="text-center py-8 text-muted">No departments published yet.</div>
+            <div className="text-center py-12 border border-dashed border-border rounded-xl bg-warm">
+              <p className="text-muted max-w-md mx-auto">
+                No departments have been published yet. Check back soon —
+                department profiles are added by our team.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {departments.map((dept) => (
@@ -87,3 +92,4 @@ export default function DepartmentsPage() {
     </div>
   )
 }
+

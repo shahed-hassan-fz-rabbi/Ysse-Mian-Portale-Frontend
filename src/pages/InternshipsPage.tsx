@@ -4,7 +4,10 @@ import { ArrowRight } from "lucide-react"
 import { useDocumentTitle } from "../hooks/useDocumentTitle"
 import { api, ApiError } from "../lib/api"
 import { InternshipOpportunity } from "../types"
+import { isDeadlinePassed, formatDate } from "../utils/format"
 import Badge from "../components/ui/Badge"
+import PageHeader from "../components/shared/PageHeader"
+import { SkeletonGrid } from "../components/ui/Skeleton"
 import CTASection from "../components/shared/CTASection"
 
 export default function InternshipsPage() {
@@ -32,49 +35,69 @@ export default function InternshipsPage() {
 
   return (
     <div>
-      <section className="bg-warm">
-        <div className="container-site py-16 md:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-charcoal tracking-tight">
-              Virtual Internship Opportunities
-            </h1>
-            <p className="mt-4 text-lg text-muted leading-relaxed">
-              Gain practical experience in the social entrepreneurship sector
-              through our virtual internship program.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Join us"
+        title="Virtual Internship Opportunities"
+        description="Gain practical experience in the social entrepreneurship sector through our virtual internship program."
+      />
 
       <section className="bg-white">
         <div className="container-site section-padding">
           {loading ? (
-            <div className="text-center py-8 text-muted">Loading internships...</div>
+            <SkeletonGrid
+              count={4}
+              lines={2}
+              withBadge
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            />
           ) : error ? (
-            <div className="text-center py-8 text-red-600">{error}</div>
+            <div className="text-center py-8 text-red-600" role="alert">
+              {error}
+            </div>
           ) : internships.length === 0 ? (
-            <div className="text-center py-8 text-muted">No internship opportunities published yet.</div>
+            <div className="text-center py-12 border border-dashed border-border rounded-xl bg-warm">
+              <p className="text-muted max-w-md mx-auto">
+                No internship opportunities are open right now. New positions
+                are posted when recruitment rounds begin.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {internships.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/internships/${item.id}`}
-                  className="group block bg-white rounded-xl border border-border shadow-card p-6 hover:shadow-card-hover transition-shadow duration-200"
-                >
-                  <Badge variant="mint" className="mb-3">{item.status}</Badge>
-                  <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-muted leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
-                  <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
-                    View details
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
+              {internships.map((item) => {
+                const closed = isDeadlinePassed(item.application_deadline)
+                return (
+                  <Link
+                    key={item.id}
+                    to={`/internships/${item.id}`}
+                    className="group block bg-white rounded-xl border border-border shadow-card p-6 hover:shadow-card-hover transition-shadow duration-200"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      {closed ? (
+                        <Badge variant="outline">Applications Closed</Badge>
+                      ) : (
+                        <Badge variant="mint">Open for Applications</Badge>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-charcoal text-lg mb-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-muted leading-relaxed line-clamp-2">
+                      {item.description}
+                    </p>
+                    <p className="mt-3 text-xs text-muted">
+                      {item.application_deadline
+                        ? closed
+                          ? `Deadline was ${formatDate(item.application_deadline)}`
+                          : `Apply by ${formatDate(item.application_deadline)}`
+                        : "Rolling deadline"}
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
+                      View details
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>

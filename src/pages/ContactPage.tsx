@@ -1,8 +1,12 @@
 import { useState } from 'react'
-import { CheckCircle, AlertCircle, Mail, MapPin, ExternalLink } from 'lucide-react'
+import { CheckCircle, Mail, MapPin, Phone, ExternalLink } from 'lucide-react'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { ContactFormData } from '../types'
+import { useSiteSettings } from '../hooks/useSiteSettings'
+import { api, ApiError } from '../lib/api'
+import { getSocialLinks } from '../constants/social'
+import type { ContactFormData } from '../types'
 import { isValidEmail, isRequired } from '../utils/validation'
+import PageHeader from '../components/shared/PageHeader'
 import Input from '../components/ui/Input'
 import Textarea from '../components/ui/Textarea'
 import Button from '../components/ui/Button'
@@ -25,11 +29,13 @@ interface FormErrors {
 
 export default function ContactPage() {
   useDocumentTitle('Contact')
+  const { settings } = useSiteSettings()
 
   const [formData, setFormData] = useState<ContactFormData>(initialFormData)
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
 
   function updateField<K extends keyof ContactFormData>(
     field: K,
@@ -38,6 +44,9 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+    if (serverError) {
+      setServerError('')
     }
   }
 
@@ -74,82 +83,108 @@ export default function ContactPage() {
     }
 
     setIsSubmitting(true)
+    setServerError('')
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    try {
+      await api.post('/api/contact', formData, { auth: false })
+      setIsSubmitted(true)
+    } catch (err) {
+      // Surface exactly what the server said — never claim success on failure
+      if (err instanceof ApiError) {
+        const detail = Array.isArray(err.details)
+          ? (err.details as { message?: string }[]).map((d) => d?.message).filter(Boolean).join('. ')
+          : ''
+        setServerError(detail ? `${err.message}. ${detail}` : err.message)
+      } else {
+        setServerError('Something went wrong. Please try again later.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function handleReset() {
     setFormData(initialFormData)
     setErrors({})
     setIsSubmitted(false)
+    setServerError('')
   }
+
+  const hasEmail = Boolean(settings?.contact_email?.trim())
+  const hasPhone = Boolean(settings?.contact_phone?.trim())
+  const hasAddress = Boolean(settings?.contact_address?.trim())
+  const socialLinks = getSocialLinks(settings)
 
   return (
     <div>
       {/* Hero */}
-      <section className="bg-warm">
-        <div className="container-site py-12 md:py-16">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-4xl font-bold text-charcoal tracking-tight">
-              Contact Us
-            </h1>
-            <p className="mt-4 text-lg text-muted leading-relaxed">
-              Have questions about our programs, internships, or partnership
-              opportunities? Get in touch with us using the form below or
-              through our official channels.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Contact"
+        title="Get in Touch"
+        description="Have questions about our programs, internships, or partnership opportunities? Send us a message — our team reads every submission."
+      />
 
       {/* Contact Content */}
       <section className="bg-white">
         <div className="container-site section-padding">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Contact Information */}
+            {/* Contact Information (from site settings) */}
             <div className="lg:col-span-1">
               <SectionHeading
-                title="Get in Touch"
-                subtitle="Reach out to us through any of the following channels."
+                eyebrow="Contact information"
+                title="Reach Us Directly"
                 className="mb-6"
               />
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mail className="h-5 w-5 text-primary" />
+                {hasEmail && (
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-charcoal text-sm">Email</h3>
+                      <a
+                        href={`mailto:${settings?.contact_email}`}
+                        className="text-sm text-primary hover:text-primary-dark transition-colors mt-1 inline-block break-all"
+                      >
+                        {settings?.contact_email}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-charcoal text-sm">Email</h3>
-                    <p className="text-sm text-muted mt-1">
-                      Please visit the official YSSE website for contact email
-                      addresses.
-                    </p>
+                )}
+                {hasPhone && (
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Phone className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-charcoal text-sm">Phone</h3>
+                      <a
+                        href={`tel:${settings?.contact_phone}`}
+                        className="text-sm text-primary hover:text-primary-dark transition-colors mt-1 inline-block"
+                      >
+                        {settings?.contact_phone}
+                      </a>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-5 w-5 text-primary" />
+                )}
+                {hasAddress && (
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-charcoal text-sm">Location</h3>
+                      <p className="text-sm text-muted mt-1">{settings?.contact_address}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-charcoal text-sm">Location</h3>
-                    <p className="text-sm text-muted mt-1">
-                      Please visit the official YSSE website for office
-                      location details.
-                    </p>
-                  </div>
-                </div>
+                )}
                 <div className="flex items-start gap-4">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <ExternalLink className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-charcoal text-sm">
-                      Official Website
-                    </h3>
+                    <h3 className="font-medium text-charcoal text-sm">Official Website</h3>
                     <a
                       href="https://ysseglobal.org/"
                       target="_blank"
@@ -160,82 +195,47 @@ export default function ContactPage() {
                     </a>
                   </div>
                 </div>
+                {!hasEmail && !hasPhone && !hasAddress && (
+                  <p className="text-sm text-muted">
+                    Our email and office details are being updated. For now, the
+                    contact form on this page is the fastest way to reach us.
+                  </p>
+                )}
               </div>
 
               <div className="mt-8 bg-mint rounded-xl p-5">
-                <h3 className="font-medium text-charcoal text-sm mb-2">
-                  Social Media
-                </h3>
-                <p className="text-xs text-muted">
-                  Follow YSSE on social media for updates, stories, and
-                  announcements. Visit our official pages:
-                </p>
-                <ul className="mt-2 space-y-1.5">
-                  <li>
-                    <a
-                      href="https://www.facebook.com/ysseglobal"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:text-primary-dark transition-colors"
-                    >
-                      Facebook
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://twitter.com/ysseglobal"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:text-primary-dark transition-colors"
-                    >
-                      Twitter
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.linkedin.com/company/ysseglobal"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:text-primary-dark transition-colors"
-                    >
-                      LinkedIn
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.instagram.com/ysseglobal"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:text-primary-dark transition-colors"
-                    >
-                      Instagram
-                    </a>
-                  </li>
+                <h3 className="font-medium text-charcoal text-sm mb-3">Follow YSSE</h3>
+                <ul className="space-y-2">
+                  {socialLinks.map((link) => (
+                    <li key={link.label}>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:text-primary-dark transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
+                <p className="mt-3 text-xs text-muted">
+                  Updates, stories, and announcements are posted on our official pages.
+                </p>
               </div>
             </div>
 
-            {/* Contact Form */}
+            {/* Contact Form — submits to the real backend */}
             <div className="lg:col-span-2">
               {isSubmitted ? (
                 <div className="bg-white rounded-xl border border-border shadow-card p-8 text-center">
                   <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
                     <CheckCircle className="h-8 w-8 text-green-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-charcoal mb-3">
-                    Message Sent
-                  </h2>
-                  <Alert variant="info" className="mb-6">
-                    <p className="font-medium">Demo Submission Notice</p>
-                    <p className="mt-1">
-                      This is a simulated submission for demonstration purposes
-                      only. No actual message has been sent or stored. When the
-                      backend is connected, this form will submit to a real API.
-                    </p>
-                  </Alert>
-                  <p className="text-sm text-muted mb-6">
-                    Thank you for reaching out. In a real scenario, you would
-                    receive a confirmation email shortly.
+                  <h2 className="text-2xl font-bold text-charcoal mb-3">Message Sent</h2>
+                  <p className="text-muted mb-6 max-w-md mx-auto">
+                    Thank you for reaching out. Your message has been received and
+                    our team will get back to you soon.
                   </p>
                   <Button variant="outline" onClick={handleReset}>
                     Send Another Message
@@ -243,13 +243,12 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <div className="bg-white rounded-xl border border-border shadow-card p-8">
-                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
-                    <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="text-sm text-amber-800">
-                      This is a demo contact form. No data will be actually
-                      submitted or stored.
-                    </p>
-                  </div>
+                  {serverError && (
+                    <Alert variant="error" className="mb-6">
+                      <p className="font-medium">Your message could not be sent</p>
+                      <p className="mt-1">{serverError}</p>
+                    </Alert>
+                  )}
                   <form onSubmit={handleSubmit} noValidate>
                     <div className="space-y-5">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -289,7 +288,7 @@ export default function ContactPage() {
                         rows={6}
                       />
                       <Button type="submit" isLoading={isSubmitting}>
-                        Send Message
+                        {isSubmitting ? 'Sending...' : 'Send Message'}
                       </Button>
                     </div>
                   </form>
