@@ -22,7 +22,6 @@ export default function SectionHeading({
     <div className={`max-w-2xl ${alignClass} ${className}`}>
       {eyebrow && (
         <p className={`eyebrow mb-3 ${eyebrowClass}`}>
-          <span className="h-0.5 w-8 bg-brand" aria-hidden="true" />
           {eyebrow}
         </p>
       )}

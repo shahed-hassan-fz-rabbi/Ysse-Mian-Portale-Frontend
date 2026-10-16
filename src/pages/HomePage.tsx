@@ -145,8 +145,7 @@ export default function HomePage() {
         />
         <div className="relative z-10 w-full container-site py-12 md:py-14 lg:py-16">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-3 text-[0.8125rem] font-semibold uppercase tracking-[0.18em] text-mint animate-fade-up">
-              <span className="h-0.5 w-8 bg-brand" aria-hidden="true" />
+            <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.18em] text-mint animate-fade-up">
               Youth School for Social Entrepreneurs
             </p>
             <h1
@@ -358,8 +357,7 @@ export default function HomePage() {
         <div className="container-site section-padding">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-10">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-3 text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-brand">
-                <span className="h-0.5 w-8 bg-brand" aria-hidden="true" />
+              <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-brand">
                 Join the team
               </p>
               <h2 className="mt-3 text-title font-bold text-white">

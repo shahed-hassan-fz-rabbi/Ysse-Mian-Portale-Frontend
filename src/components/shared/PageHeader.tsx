@@ -16,7 +16,6 @@ export default function PageHeader({ title, description, eyebrow }: PageHeaderPr
         <div className="max-w-3xl">
           {eyebrow && (
             <p className="eyebrow mb-3 justify-start">
-              <span className="h-0.5 w-8 bg-brand" aria-hidden="true" />
               {eyebrow}
             </p>
           )}
